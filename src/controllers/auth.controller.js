@@ -34,32 +34,3 @@ export const createStudent=async(req,res)=>{
 
 //loging in the student
 
-export const login=async(req,res)=>{
-
-    const {email,password}=req.body
-    try{
-
-        let user = await prisma.student.findUnique({where:{email}});
-        if(!user){
-            return res.status(404).json({ message:"user not found with this email"})
-        }
-
-        const isPassValid=await bcrypt.compare(password,user.password)
-
-        if(!isPassValid) return res.status(401).json({message:"password does not match "})
-
-        // going to sign a jwt token and send it in response.
-
-        const token=jwt.sign(
-            {id:user.id,email:user.email},process.env.JWT_STUDENT_SECRET_KEY,{expiresIn:process.env.JWT_EXPIRES_IN || "24h"}
-        )
-        console.log("log in hogyaa bhaiii !! kya dekhra hai , galat code ni likhta mai ")
-        return res.status(200).json({message:"log in succesfull hurray !!!",token})
-    }
-
-    catch(err){
-        console.error("error in log in , error message : ",err.message)
-        return res.status(500).json({error:err.message})
-    }
-
-}
